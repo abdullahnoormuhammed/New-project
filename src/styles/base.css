@@ -1,0 +1,417 @@
+/* ---------------------------------------------------------------------------
+   Foundations: reset, theme tokens, the fixed stage, typography, animations.
+
+   The board renders onto a fixed 1920x1080 canvas that is scaled to fit the
+   screen, so every measurement below is in real pixels at that canvas size.
+   --------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #040d0b;
+  color: #f4f7f6;
+  font-family: 'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* --- theme tokens ---------------------------------------------------------- */
+
+:root,
+[data-theme='emerald'] {
+  --bg-0: #03100d;
+  --bg-1: #062019;
+  --bg-2: #0a2b22;
+  --glow: rgba(45, 212, 167, 0.16);
+  --accent: #2dd4a7;
+  --accent-strong: #5ff0c4;
+  --accent-ink: #04231b;
+  --gold: #e8c37a;
+  --text: #f2f8f6;
+  --text-dim: #9dbdb4;
+  --text-faint: #6d8c84;
+  --panel: rgba(255, 255, 255, 0.045);
+  --panel-strong: rgba(255, 255, 255, 0.08);
+  --line: rgba(45, 212, 167, 0.18);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --danger: #f0645a;
+  --warn: #f0b45a;
+  --ok: #4ade80;
+}
+
+[data-theme='midnight'] {
+  --bg-0: #050916;
+  --bg-1: #0a1229;
+  --bg-2: #101c3d;
+  --glow: rgba(122, 162, 255, 0.16);
+  --accent: #7aa2ff;
+  --accent-strong: #a8c2ff;
+  --accent-ink: #071129;
+  --gold: #f0cf92;
+  --text: #f2f5fb;
+  --text-dim: #a3b0d0;
+  --text-faint: #6d7ba0;
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-strong: rgba(255, 255, 255, 0.09);
+  --line: rgba(122, 162, 255, 0.2);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --danger: #ff6b6b;
+  --warn: #ffc46b;
+  --ok: #6ee7a8;
+}
+
+[data-theme='gold'] {
+  --bg-0: #0f0b05;
+  --bg-1: #1c140a;
+  --bg-2: #2a1e0e;
+  --glow: rgba(229, 181, 103, 0.16);
+  --accent: #e5b567;
+  --accent-strong: #f7d79b;
+  --accent-ink: #2a1d08;
+  --gold: #f7d79b;
+  --text: #fbf6ec;
+  --text-dim: #c8b48d;
+  --text-faint: #93805f;
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-strong: rgba(255, 255, 255, 0.09);
+  --line: rgba(229, 181, 103, 0.24);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --danger: #e8705f;
+  --warn: #e8b45f;
+  --ok: #a3d977;
+}
+
+[data-theme='slate'] {
+  --bg-0: #0a0d10;
+  --bg-1: #131a20;
+  --bg-2: #1c262e;
+  --glow: rgba(103, 232, 249, 0.14);
+  --accent: #67e8f9;
+  --accent-strong: #a5f3fc;
+  --accent-ink: #06232a;
+  --gold: #e3c98f;
+  --text: #f3f6f8;
+  --text-dim: #a4b3bd;
+  --text-faint: #6f8089;
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-strong: rgba(255, 255, 255, 0.09);
+  --line: rgba(103, 232, 249, 0.18);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --danger: #fb7185;
+  --warn: #fbbf5e;
+  --ok: #5eead4;
+}
+
+[data-theme='ramadan'] {
+  --bg-0: #0c0618;
+  --bg-1: #170c2c;
+  --bg-2: #241243;
+  --glow: rgba(192, 132, 252, 0.18);
+  --accent: #c084fc;
+  --accent-strong: #ddb5ff;
+  --accent-ink: #1d0b33;
+  --gold: #f2d08a;
+  --text: #f7f3fb;
+  --text-dim: #b9a7d0;
+  --text-faint: #8877a3;
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-strong: rgba(255, 255, 255, 0.09);
+  --line: rgba(192, 132, 252, 0.22);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --danger: #fb7185;
+  --warn: #fbbf5e;
+  --ok: #86efac;
+}
+
+/* --- the stage ------------------------------------------------------------- */
+
+.viewport {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+  overflow: hidden;
+}
+
+.stage {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  transform-origin: center center;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% -10%, var(--bg-2) 0%, transparent 55%),
+    radial-gradient(90% 70% at 100% 110%, var(--glow) 0%, transparent 60%),
+    linear-gradient(160deg, var(--bg-1) 0%, var(--bg-0) 60%, #000 100%);
+  color: var(--text);
+  transition: filter 1.2s ease, opacity 1.2s ease;
+}
+
+/* Subtle geometric watermark; kept very low contrast so text stays crisp. */
+.stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--pattern-url);
+  background-size: 220px 220px;
+  opacity: 0.05;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Vignette to pull the eye to the middle of a bright TV panel. */
+.stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+  pointer-events: none;
+}
+
+.stage.is-dimmed {
+  filter: brightness(var(--dim-level, 0.55));
+}
+
+.stage-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* --- typography ------------------------------------------------------------ */
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  letter-spacing: -0.01em;
+}
+
+.arabic {
+  font-family: 'Amiri', 'Traditional Arabic', 'Scheherazade', serif;
+  direction: rtl;
+  unicode-bidi: isolate;
+  line-height: 1.9;
+}
+
+.eyebrow {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.slide-title {
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.text-dim {
+  color: var(--text-dim);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.text-gold {
+  color: var(--gold);
+}
+
+/* --- surfaces -------------------------------------------------------------- */
+
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+
+/* A hairline of light along the top edge — reads as glass under TV backlight. */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+}
+
+.panel-accent {
+  border-color: var(--line);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 24px 60px -30px var(--glow);
+}
+
+.panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 32px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+.chip-accent {
+  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+
+.chip-danger {
+  background: var(--danger);
+  color: #2a0a08;
+  border-color: transparent;
+}
+
+.chip-warn {
+  background: var(--warn);
+  color: #2b1c05;
+  border-color: transparent;
+}
+
+.rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+  border: 0;
+  margin: 0;
+}
+
+/* --- animations ------------------------------------------------------------ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(70px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--glow);
+  }
+  50% {
+    box-shadow: 0 0 60px 6px var(--glow);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes sheen {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+.stagger > * {
+  animation: rise-in 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 60ms; }
+.stagger > *:nth-child(2) { animation-delay: 130ms; }
+.stagger > *:nth-child(3) { animation-delay: 200ms; }
+.stagger > *:nth-child(4) { animation-delay: 270ms; }
+.stagger > *:nth-child(5) { animation-delay: 340ms; }
+.stagger > *:nth-child(6) { animation-delay: 410ms; }
+.stagger > *:nth-child(7) { animation-delay: 480ms; }
+.stagger > *:nth-child(8) { animation-delay: 550ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger > *,
+  .slide-enter {
+    animation: fade-in 200ms ease both;
+  }
+}

@@ -1,0 +1,655 @@
+/* ---------------------------------------------------------------------------
+   Per-slide layouts. Each slide fills the frame between header and footer:
+   1824 x ~800 px of usable canvas.
+   --------------------------------------------------------------------------- */
+
+/* --- next salaah countdown -------------------------------------------------- */
+
+.countdown-slide {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+
+.countdown-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding: 48px 56px;
+}
+
+.countdown-main .prayer-name {
+  font-size: 104px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, #fff, var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.countdown-main .prayer-arabic {
+  font-size: 62px;
+  color: var(--text-dim);
+  line-height: 1.3;
+  /* Right-to-left text in a stretched flex child would sit against the far
+     edge; hugging the content keeps it under the name it belongs to. */
+  align-self: flex-start;
+}
+
+.countdown-main .digits {
+  font-size: 172px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent-strong);
+  text-shadow: 0 0 80px var(--glow);
+}
+
+.countdown-main .caption {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.countdown-progress {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.countdown-progress .fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transition: width 1s linear;
+}
+
+.countdown-aside {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 40px;
+}
+
+.mini-stat .label {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.mini-stat .value {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mini-stat .sub {
+  font-size: 24px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+/* --- announcements ---------------------------------------------------------- */
+
+.announcement-grid {
+  flex: 1;
+  display: grid;
+  gap: 24px;
+  /* Cards fill the frame rather than clustering at the top of an empty slide. */
+  grid-auto-rows: 1fr;
+  align-content: stretch;
+}
+
+.announcement-grid.count-1 {
+  grid-template-columns: 1fr;
+}
+
+.announcement-grid.count-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.announcement-grid.count-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.announcement-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 38px 42px;
+  position: relative;
+}
+
+.announcement-card .chip {
+  align-self: flex-start;
+}
+
+.announcement-card .title {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.announcement-card .body {
+  font-size: 30px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.announcement-grid.count-1 .announcement-card .title {
+  font-size: 62px;
+}
+
+.announcement-grid.count-1 .announcement-card .body {
+  font-size: 38px;
+  line-height: 1.55;
+}
+
+/* Priority is carried by a colour bar rather than a shouty background. */
+.announcement-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 26px;
+  bottom: 26px;
+  width: 5px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+
+.announcement-card.priority-important::after {
+  background: var(--warn);
+}
+
+.announcement-card.priority-urgent::after {
+  background: var(--danger);
+}
+
+.announcement-card.priority-urgent {
+  border-color: rgba(240, 100, 90, 0.4);
+}
+
+/* --- quote (ayah / hadith) --------------------------------------------------- */
+
+.quote-slide {
+  flex: 1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 40px;
+  padding: 30px 120px;
+}
+
+.quote-slide .arabic-text {
+  font-size: 76px;
+  line-height: 1.85;
+  color: var(--gold);
+}
+
+.quote-slide .translation {
+  font-size: 44px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--text);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.quote-slide .reference {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.quote-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: var(--line);
+}
+
+.quote-ornament::before,
+.quote-ornament::after {
+  content: '';
+  width: 180px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
+/* --- events / classes lists -------------------------------------------------- */
+
+.list-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.list-row {
+  display: grid;
+  grid-template-columns: 150px 1fr auto;
+  align-items: center;
+  gap: 34px;
+  padding: 26px 38px;
+}
+
+.list-row .date-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px 0;
+  border-radius: 16px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+}
+
+.list-row .date-badge .day {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.list-row .date-badge .month {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.list-row .main .title {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.list-row .main .meta {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin-top: 8px;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.list-row .main .meta .sep {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.list-row .time-col {
+  text-align: right;
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* --- janazah ---------------------------------------------------------------- */
+
+.janazah-slide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.janazah-dua {
+  text-align: center;
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--text-dim);
+  padding: 18px 0;
+}
+
+.janazah-dua .arabic-text {
+  font-size: 46px;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.janazah-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+  align-items: center;
+  padding: 34px 44px;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.janazah-card .deceased .name {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.janazah-card .deceased .age {
+  font-size: 26px;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.janazah-card .field .label {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+
+.janazah-card .field .value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* --- appeal / fundraising ---------------------------------------------------- */
+
+.appeal-slide {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 32px;
+}
+
+.appeal-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 22px;
+  padding: 44px 52px;
+}
+
+.appeal-main .title {
+  font-size: 58px;
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.appeal-main .description {
+  font-size: 30px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.appeal-main .details {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--gold);
+  padding: 18px 26px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed var(--line);
+}
+
+.appeal-meter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 26px;
+  padding: 44px 52px;
+  text-align: center;
+}
+
+.appeal-meter .raised {
+  font-size: 92px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent-strong);
+  text-shadow: 0 0 60px var(--glow);
+}
+
+.appeal-meter .target {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.appeal-meter .percent {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.meter-track {
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.meter-track .fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  position: relative;
+  overflow: hidden;
+}
+
+/* A slow sheen across the bar keeps the slide from looking like a screenshot. */
+.meter-track .fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: sheen 3.4s ease-in-out infinite;
+}
+
+/* --- jumu'ah ----------------------------------------------------------------- */
+
+.jumuah-slide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  justify-content: center;
+}
+
+.jumuah-times {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 26px;
+}
+
+.jumuah-card {
+  text-align: center;
+  padding: 46px 30px;
+}
+
+.jumuah-card .label {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+
+.jumuah-card .value {
+  font-size: 120px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--gold);
+}
+
+.jumuah-note {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-dim);
+  line-height: 1.45;
+  padding: 0 80px;
+}
+
+/* --- islamic calendar / occasions -------------------------------------------- */
+
+.occasion-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-content: start;
+}
+
+.occasion-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 30px 38px;
+}
+
+.occasion-card .name {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.occasion-card .when {
+  font-size: 25px;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.occasion-card .countdown {
+  text-align: center;
+  min-width: 150px;
+}
+
+.occasion-card .countdown .number {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.occasion-card .countdown .unit {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* --- qibla / masjid info ------------------------------------------------------ */
+
+.qibla-slide {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 32px;
+}
+
+.qibla-compass {
+  display: grid;
+  place-content: center;
+  gap: 22px;
+  padding: 30px;
+  text-align: center;
+}
+
+.qibla-compass .bearing {
+  font-size: 62px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.qibla-compass .caption {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  padding: 20px 44px;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 24px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.info-row:last-child {
+  border-bottom: 0;
+}
+
+.info-row .label {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.info-row .value {
+  font-size: 34px;
+  font-weight: 800;
+  text-align: right;
+}
+
+/* --- moon widget -------------------------------------------------------------- */
+
+.moon-widget {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 22px 32px;
+}
+
+.moon-widget .moon-text .phase {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.moon-widget .moon-text .detail {
+  font-size: 22px;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin-top: 4px;
+}
