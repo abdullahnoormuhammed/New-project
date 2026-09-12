@@ -2,21 +2,26 @@ import { useCallback, useEffect, useState } from 'react';
 import { ConfigProvider } from './state/ConfigContext';
 import { Board } from './components/Board';
 import { AdminPanel } from './admin/AdminPanel';
-import { PasscodeGate } from './admin/PasscodeGate';
+import { AdminAccess } from './admin/AdminAccess';
 import './styles/base.css';
 import './styles/board.css';
 import './styles/slides.css';
 import './styles/admin.css';
+
+/** The admin route, allowing for the `#admin&k=…` form the editor link uses. */
+function isAdminHash(hash: string): boolean {
+  return hash === '#admin' || hash.startsWith('#admin&');
+}
 
 /**
  * Two views, one app: the board on the wall, and the settings behind it.
  *
  * Nothing on the board advertises the settings — no button, no hint. They are
  * reached at #admin, or by pressing "A" on a keyboard paired with the screen,
- * and then only with the passcode.
+ * and then only past the gates in AdminAccess.
  */
 export default function App() {
-  const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin');
+  const [showAdmin, setShowAdmin] = useState(() => isAdminHash(window.location.hash));
 
   const close = useCallback(() => {
     // Replace rather than push, so "back" does not land in the panel again.
@@ -25,7 +30,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const onHashChange = () => setShowAdmin(window.location.hash === '#admin');
+    const onHashChange = () => setShowAdmin(isAdminHash(window.location.hash));
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
@@ -54,9 +59,9 @@ export default function App() {
   return (
     <ConfigProvider>
       {showAdmin ? (
-        <PasscodeGate onCancel={close}>
+        <AdminAccess onCancel={close}>
           <AdminPanel onClose={close} />
-        </PasscodeGate>
+        </AdminAccess>
       ) : (
         <Board />
       )}

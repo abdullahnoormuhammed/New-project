@@ -22,6 +22,8 @@ import { describeSlide } from '../../lib/slide-plan';
 import { WEEKDAY_NAMES, type Rounding } from '../../lib/time';
 import { exportConfig, importConfig } from '../../lib/storage';
 import { checkPasscode, forgetUnlock, hashPasscode, isValidPasscode } from '../../lib/passcode';
+import { buildEditorLink } from '../../lib/remote';
+import { useConfig, type SyncStatus } from '../../state/ConfigContext';
 import {
   Field,
   NumberField,
@@ -1265,4 +1267,172 @@ export function PasscodeSection({ config, update }: SectionProps) {
       </Section>
     </>
   );
+}
+
+// --- screens & sync -------------------------------------------------------------------------
+
+/**
+ * Shows whether this device is in step with the screens, and hands over the
+ * link the committee uses. Only meaningful on a deployment with shared
+ * settings; on a stand-alone board it says so and explains what to do about it.
+ */
+export function ScreensSection() {
+  const { remote, editKey, syncStatus, refreshNow, disconnectEditKey } = useConfig();
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copy = async (label: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(label);
+      window.setTimeout(() => setCopied(null), 2500);
+    } catch {
+      setCopied('failed');
+    }
+  };
+
+  if (!remote) {
+    return (
+      <>
+        <h1>Screens</h1>
+        <p className="lede">
+          This board is running on its own. Its settings live on this device only — changes made
+          here do not reach any other screen, and nobody can edit it from a phone.
+        </p>
+        <Section title="To let the committee edit from their phones">
+          <p className="hint" style={{ marginBottom: 0 }}>
+            Follow <strong>INSTALL.md</strong> in the project. It takes about ten minutes: create a
+            free database, run one file of SQL, and redeploy the site with three settings filled in.
+            Everything on this board is preserved — take a backup first from Backup &amp; Restore,
+            and restore it once the screens are connected.
+          </p>
+        </Section>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h1>Screens</h1>
+      <p className="lede">
+        Every change you make here is sent to all the screens showing this board, usually within
+        twenty seconds.
+      </p>
+
+      <Section title="Status">
+        <SyncStatusRow status={syncStatus} />
+        <div className="btn-row" style={{ marginTop: 16 }}>
+          <button className="btn" type="button" onClick={refreshNow}>
+            Check for changes now
+          </button>
+        </div>
+      </Section>
+
+      <Section
+        title="This board"
+        hint="The board code appears in the screens' web address. Give the editor link only to the people who should be able to change the board — it carries the edit key."
+      >
+        <div className="field-grid">
+          <Field label="Board code">
+            <input type="text" value={remote.slug} readOnly />
+          </Field>
+          <Field label="Screen link — safe to share, cannot edit">
+            <input
+              type="text"
+              readOnly
+              value={`${window.location.origin}${window.location.pathname}?board=${remote.slug}`}
+            />
+          </Field>
+        </div>
+        <div className="btn-row" style={{ marginTop: 14 }}>
+          <button
+            className="btn"
+            type="button"
+            onClick={() =>
+              copy(
+                'screen',
+                `${window.location.origin}${window.location.pathname}?board=${remote.slug}`,
+              )
+            }
+          >
+            {copied === 'screen' ? 'Copied' : 'Copy screen link'}
+          </button>
+          {editKey ? (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={() => copy('editor', buildEditorLink(editKey))}
+            >
+              {copied === 'editor' ? 'Copied' : 'Copy editor link'}
+            </button>
+          ) : null}
+        </div>
+        {copied === 'failed' ? (
+          <p className="hint" style={{ marginTop: 10, marginBottom: 0 }}>
+            This browser would not let the page copy for you — select the text above instead.
+          </p>
+        ) : null}
+      </Section>
+
+      <Section
+        title="This device"
+        hint="Sign this device out of editing. The board carries on showing the timetable; it simply cannot change it any more. Use this on a borrowed phone, or on the TV if you connected it by mistake."
+      >
+        <button
+          className="btn btn-danger"
+          type="button"
+          onClick={() => {
+            if (window.confirm('Stop this device from editing the board?')) {
+              disconnectEditKey();
+              window.location.hash = '';
+              window.location.reload();
+            }
+          }}
+        >
+          Sign this device out
+        </button>
+      </Section>
+
+      <Section title="If the editor link gets out">
+        <p className="hint" style={{ marginBottom: 0 }}>
+          Change the edit key. The SQL for it is at the bottom of{' '}
+          <strong>supabase/schema.sql</strong> — one statement, and it hands back a new key. Old
+          links stop working immediately; send the committee the new one. The passcode is a second
+          lock, so a leaked link on its own is not enough to change anything.
+        </p>
+      </Section>
+    </>
+  );
+}
+
+function SyncStatusRow({ status }: { status: SyncStatus }) {
+  const when = (date: Date | null) =>
+    date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null;
+
+  switch (status.kind) {
+    case 'saving':
+      return <div className="admin-banner is-ok">Sending to the screens…</div>;
+    case 'synced':
+      return (
+        <div className="admin-banner is-ok">
+          All screens are up to date — last sent at {when(status.lastSyncedAt)}.
+        </div>
+      );
+    case 'watching':
+      return (
+        <div className="admin-banner is-ok">
+          Reading the shared settings
+          {status.lastSyncedAt ? ` — last checked at ${when(status.lastSyncedAt)}` : ''}.
+        </div>
+      );
+    case 'offline':
+      return <div className="admin-banner is-warning">{status.message}</div>;
+    case 'error':
+      return <div className="admin-banner is-warning">{status.message}</div>;
+    default:
+      return (
+        <div className="admin-banner is-warning">
+          This board is not connected to any shared settings.
+        </div>
+      );
+  }
 }

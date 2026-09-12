@@ -4,3 +4,7 @@ dist/
 .DS_Store
 .vite/
 *.tmp.mjs
+
+# local env
+.env
+.env.local

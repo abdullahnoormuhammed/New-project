@@ -19,6 +19,7 @@ import {
   DisplaySection,
   MasjidSection,
   PasscodeSection,
+  ScreensSection,
   SlidesSection,
   TimesSection,
 } from './sections/SetupSections';
@@ -36,6 +37,7 @@ type SectionId =
   | 'display'
   | 'alerts'
   | 'passcode'
+  | 'screens'
   | 'backup';
 
 const NAV: Array<{ id: SectionId; label: string; group: string }> = [
@@ -48,6 +50,7 @@ const NAV: Array<{ id: SectionId; label: string; group: string }> = [
   { id: 'janazah', label: 'Janazah Notices', group: 'Content' },
   { id: 'quotes', label: 'Ayah & Hadith', group: 'Content' },
   { id: 'classes', label: 'Madrasah', group: 'Content' },
+  { id: 'screens', label: 'Screens', group: 'Board' },
   { id: 'display', label: 'Display', group: 'Board' },
   { id: 'alerts', label: 'Salaah Alerts', group: 'Board' },
   { id: 'passcode', label: 'Passcode', group: 'Board' },
@@ -139,6 +142,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
         {section === 'janazah' ? <JanazahSection config={config} update={update} /> : null}
         {section === 'quotes' ? <QuotesSection config={config} update={update} /> : null}
         {section === 'classes' ? <ClassesSection config={config} update={update} /> : null}
+        {section === 'screens' ? <ScreensSection /> : null}
         {section === 'display' ? <DisplaySection config={config} update={update} /> : null}
         {section === 'alerts' ? <AlertsSection config={config} update={update} /> : null}
         {section === 'passcode' ? <PasscodeSection config={config} update={update} /> : null}

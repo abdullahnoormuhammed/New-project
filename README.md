@@ -2,13 +2,16 @@
 
 A digital salaah-time and announcement display for masjids. It runs full-screen on
 any TV with a browser — a smart TV, a Raspberry Pi, an old laptop, a Fire Stick —
-and cycles through the timetable, announcements, programmes, janazah notices,
-appeals and more, taking over the screen around each salaah.
+and cycles through the timetable, announcements, programmes, janazah notices and
+more, taking over the screen around each salaah.
 
-Everything is worked out **offline**. The prayer times come from the sun's actual
-position, computed on the device; the Hijri date and the moon phase likewise. Once
-the page is loaded the board will keep running correctly with the internet
-unplugged, indefinitely.
+The committee updates it from their phones through a private link, and every
+screen follows within seconds.
+
+The prayer times themselves are worked out **offline** — from the sun's actual
+position, computed on the device, as are the Hijri date and the moon phase. Once
+loaded, the board keeps running correctly with the internet unplugged,
+indefinitely; it simply stops seeing new announcements until it is back.
 
 ---
 
@@ -22,15 +25,24 @@ npm run preview    # serve the production build
 npm test           # the test suite
 ```
 
-To put it on a screen, serve `dist/` from anywhere and open it full-screen (F11) in
-a browser in kiosk mode. It is a plain static site — no server, no database, no
-accounts.
+To put it on a wall, follow **[INSTALL.md](INSTALL.md)**. It is a plain static
+site, so any host will serve it; the shared settings that let the committee edit
+from a phone are optional, and the board works without them.
 
 ## Managing the board
 
-Press **A** on the board, or open `#admin`, for the management panel. Every change
-saves as you type and the board updates immediately; there is no save button to
-forget. Press **A** or **Escape** to go back.
+The settings are private. **Nothing on the board points at them** — no button, no
+hint. They are reached in one of two ways, and both then need a passcode:
+
+- **The editor link**, which the committee opens on their phones. It carries the
+  edit key, so there is nothing for them to type.
+- **Pressing A** on a keyboard plugged into the screen.
+
+Every change saves as you type and reaches every screen within about twenty
+seconds. There is no save button to forget.
+
+See **[INSTALL.md](INSTALL.md)** to set this up — hosting, the shared settings
+database, and the TV itself.
 
 The panel covers:
 
@@ -40,9 +52,11 @@ The panel covers:
 | **Location & Calculation** | Coordinates, calculation method, Asr madhhab, high-latitude rule, per-prayer adjustments, Hijri offset — with a live preview of today's times |
 | **Adhaan & Jamaat** | Per-salaah rules, Jumu'ah, and weekday/public-holiday overrides |
 | **Slides** | Which slides show, in what order, for how long |
-| **Content** | Announcements, programmes, janazah notices, appeals, ayah & hadith, madrasah timetable |
+| **Content** | Announcements, programmes, janazah notices, ayah & hadith, madrasah timetable |
 | **Display** | Theme, 12/24-hour clock, transitions, notice ticker, overnight dimming |
 | **Salaah Alerts** | The takeover behaviour around each prayer |
+| **Screens** | Sync status, the board code, and the links to hand out |
+| **Passcode** | The lock on these settings |
 | **Backup & Restore** | Download or restore the whole configuration as one JSON file |
 
 Keep a copy of the backup file. If the screen is ever replaced, restoring it is a
@@ -64,12 +78,30 @@ are paginated automatically across several slides.
   and reference.
 - **Programmes** — upcoming events, soonest first; past dates drop off on their own.
 - **Janazah Notices** — name, salaah time and venue, burial, with an expiry date.
-- **Appeals** — a fundraising progress meter with banking details.
 - **Madrasah & Ta'leem** — the standing class timetable.
 - **Jumu'ah** — adhaan and khutbah times, with an optional second jamaat.
 - **Islamic Calendar** — a countdown to Ramadan, the Eids, Ashura and the rest.
 - **Qibla & Masjid Info** — qibla bearing on a compass, distance to the Kaaba, and
   the settings the times were calculated with.
+
+## Who can change what
+
+| | Reads the board | Changes the board |
+| --- | --- | --- |
+| Anyone who opens the address | yes | no |
+| A device holding the **edit key** and the **passcode** | yes | yes |
+
+The edit key is checked **in the database**, not in the browser, so a device
+without it cannot write no matter what it does locally. It is stored only as a
+digest, and it can be rotated at any time — old links stop working immediately.
+
+The TV is deliberately given only the plain address, so the screen on the wall
+cannot change what it shows.
+
+The passcode is a second, local lock so that a forwarded link is not enough on
+its own. It guards against someone picking up the remote; it is not a defence
+against developer tools on the device itself, where the settings live in the
+browser regardless.
 
 ## Around each salaah
 
@@ -123,8 +155,8 @@ labelled *subject to moon sighting* on the board, because they are.
 - The display can dim overnight to spare the panel.
 - The clock ticks aligned to the wall clock rather than on a plain interval, so the
   seconds do not drift and stutter over weeks of uptime.
-- A second browser tab — a phone on the admin URL, say — editing the settings
-  updates the board live.
+- Settings are cached on the device and read from that cache first, so the screen
+  is never blank and never waits on the network.
 - Five themes: Emerald, Midnight, Gold, Slate and Ramadan.
 
 ## Project layout
@@ -139,11 +171,15 @@ src/
     prayer-state.ts   the salaah takeover state machine
     slide-plan.ts     builds the deck, drops empty slides, paginates lists
     config.ts         the configuration model and its defaults
-    storage.ts        persistence, merging and validation
+    storage.ts        local persistence, merging and validation
+    remote.ts         shared settings: polling, pushing, the edit key
+    passcode.ts       the lock on the settings
   components/     the board chrome: header, footer, takeovers
   slides/         one component per slide type
-  admin/          the management panel
+  admin/          the management panel and the locks in front of it
   styles/         design tokens and layout
+supabase/
+  schema.sql      the shared-settings table and its three functions
 tests/            58 tests over the engine
 ```
 
@@ -162,6 +198,6 @@ pagination, and the config merge/validation path.
 ## A note on the sample content
 
 The board ships configured for Masjid Ut Taqwa, Sea Cow Lake, Durban, with sample
-announcements, appeals and classes so there is something to look at on first run.
-Replace it from the admin panel — or **Backup & Restore → Reset everything** to
-start from scratch.
+announcements and classes so there is something to look at on first run. Replace
+it from the settings — or **Backup & Restore → Reset everything** to start from
+scratch.

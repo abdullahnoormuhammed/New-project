@@ -7,15 +7,109 @@ import {
   isValidPasscode,
   rememberUnlock,
 } from '../lib/passcode';
+import { verifyEditKey } from '../lib/remote';
 
 /**
- * Stands in front of the admin panel.
+ * Everything that stands between the board and its settings.
  *
- * If no passcode has been set yet — a brand new board — it asks for one to be
- * chosen before anything can be edited, rather than leaving the panel open and
- * hoping somebody remembers to lock it later.
+ * Two gates, in order:
+ *
+ *   1. **The edit key.** Only on a deployment with shared settings. It arrives
+ *      automatically in the editor's link, so the committee never types it —
+ *      but a device that does not have it cannot write to the screens at all,
+ *      and that includes the TV itself.
+ *
+ *   2. **The passcode.** A second lock, so a link forwarded to the wrong person
+ *      is not enough on its own.
  */
-export function PasscodeGate({ onCancel, children }: { onCancel: () => void; children: ReactNode }) {
+export function AdminAccess({ onCancel, children }: { onCancel: () => void; children: ReactNode }) {
+  const { remote, canEdit, editAccess } = useConfig();
+
+  if (remote && editAccess === 'checking') {
+    return (
+      <LockScreen title="Checking Your Link" subtitle="One moment — confirming this device may edit the board.">
+        <div className="lock-actions">
+          <button className="btn" type="button" onClick={onCancel}>
+            Back to the board
+          </button>
+        </div>
+      </LockScreen>
+    );
+  }
+
+  if (remote && !canEdit) return <ConnectScreen onCancel={onCancel} />;
+  return <PasscodeGate onCancel={onCancel}>{children}</PasscodeGate>;
+}
+
+/** Shown when this device has no usable edit key — most often the TV. */
+function ConnectScreen({ onCancel }: { onCancel: () => void }) {
+  const { remote, connectEditKey, editAccess } = useConfig();
+  const [value, setValue] = useState('');
+  const [error, setError] = useState<string | null>(
+    editAccess === 'rejected'
+      ? 'That editor link is no longer valid — the edit key may have been changed. Ask for the current link.'
+      : null,
+  );
+  const [checking, setChecking] = useState(false);
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!remote) return;
+    setChecking(true);
+    setError(null);
+    try {
+      const ok = await verifyEditKey(remote, value.trim());
+      if (!ok) {
+        setError('That edit key is not right for this board.');
+        setChecking(false);
+        return;
+      }
+      connectEditKey(value.trim());
+    } catch {
+      setError('Could not reach the internet to check the key. Try again in a moment.');
+      setChecking(false);
+    }
+  };
+
+  return (
+    <LockScreen
+      title="Editor Access"
+      subtitle="This screen can show the board but not change it. Open the editor link the committee was given, or paste its edit key below."
+    >
+      <form onSubmit={submit}>
+        <input
+          type="password"
+          className="lock-input"
+          value={value}
+          placeholder="Edit key"
+          autoComplete="off"
+          onChange={(event) => {
+            setValue(event.target.value);
+            setError(null);
+          }}
+        />
+        {error ? <p className="lock-error">{error}</p> : null}
+        <p className="lock-note">
+          Board: <strong>{remote?.slug}</strong>
+        </p>
+        <div className="lock-actions">
+          <button className="btn btn-primary" type="submit" disabled={checking || !value.trim()}>
+            {checking ? 'Checking…' : 'Connect this device'}
+          </button>
+          <button className="btn" type="button" onClick={onCancel}>
+            Back to the board
+          </button>
+        </div>
+      </form>
+    </LockScreen>
+  );
+}
+
+/**
+ * A board with no passcode yet is asked to choose one before anything can be
+ * edited, rather than being left open in the hope somebody locks it later.
+ */
+function PasscodeGate({ onCancel, children }: { onCancel: () => void; children: ReactNode }) {
   const { config, update } = useConfig();
   const [unlocked, setUnlocked] = useState(() => isUnlocked());
 
@@ -90,7 +184,6 @@ function EnterPasscode({
           type="password"
           className="lock-input"
           value={value}
-          inputMode="text"
           autoComplete="current-password"
           placeholder="Passcode"
           onChange={(event) => {
