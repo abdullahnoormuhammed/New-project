@@ -71,7 +71,7 @@ export function normalizeConfig(input: unknown): MasjidConfig {
   if (!Array.isArray(merged.slides) || merged.slides.length === 0) {
     merged.slides = cloneConfig(DEFAULT_CONFIG.slides);
   }
-  for (const list of ['announcements', 'events', 'janazah', 'appeals', 'quotes', 'classes'] as const) {
+  for (const list of ['announcements', 'events', 'janazah', 'quotes', 'classes'] as const) {
     if (!Array.isArray(merged[list])) {
       (merged[list] as unknown[]) = [];
     }

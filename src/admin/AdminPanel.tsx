@@ -7,7 +7,6 @@ import {
 } from '../lib/slide-plan';
 import {
   AnnouncementsSection,
-  AppealsSection,
   ClassesSection,
   EventsSection,
   JanazahSection,
@@ -19,6 +18,7 @@ import {
   CalculationSection,
   DisplaySection,
   MasjidSection,
+  PasscodeSection,
   SlidesSection,
   TimesSection,
 } from './sections/SetupSections';
@@ -31,11 +31,11 @@ type SectionId =
   | 'announcements'
   | 'events'
   | 'janazah'
-  | 'appeals'
   | 'quotes'
   | 'classes'
   | 'display'
   | 'alerts'
+  | 'passcode'
   | 'backup';
 
 const NAV: Array<{ id: SectionId; label: string; group: string }> = [
@@ -46,11 +46,11 @@ const NAV: Array<{ id: SectionId; label: string; group: string }> = [
   { id: 'announcements', label: 'Announcements', group: 'Content' },
   { id: 'events', label: 'Programmes', group: 'Content' },
   { id: 'janazah', label: 'Janazah Notices', group: 'Content' },
-  { id: 'appeals', label: 'Appeals', group: 'Content' },
   { id: 'quotes', label: 'Ayah & Hadith', group: 'Content' },
   { id: 'classes', label: 'Madrasah', group: 'Content' },
   { id: 'display', label: 'Display', group: 'Board' },
   { id: 'alerts', label: 'Salaah Alerts', group: 'Board' },
+  { id: 'passcode', label: 'Passcode', group: 'Board' },
   { id: 'backup', label: 'Backup & Restore', group: 'Board' },
 ];
 
@@ -67,7 +67,6 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
     announcements: activeAnnouncements(config.announcements, today).length,
     events: upcomingEvents(config.events, today).length,
     janazah: activeJanazah(config.janazah, today).length,
-    appeals: config.appeals.filter((a) => a.enabled).length,
     quotes: config.quotes.filter((q) => q.enabled).length,
     classes: config.classes.filter((c) => c.enabled).length,
     slides: config.slides.filter((s) => s.enabled).length,
@@ -123,7 +122,7 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
             ← Back to the board
           </button>
           <span style={{ fontSize: 12, color: '#6d8c84', lineHeight: 1.5 }}>
-            Changes save as you type. Press <strong>A</strong> on the board to come back here.
+            Changes save as you type — the board updates straight away.
           </span>
         </div>
       </aside>
@@ -138,11 +137,11 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
         {section === 'announcements' ? <AnnouncementsSection config={config} update={update} /> : null}
         {section === 'events' ? <EventsSection config={config} update={update} /> : null}
         {section === 'janazah' ? <JanazahSection config={config} update={update} /> : null}
-        {section === 'appeals' ? <AppealsSection config={config} update={update} /> : null}
         {section === 'quotes' ? <QuotesSection config={config} update={update} /> : null}
         {section === 'classes' ? <ClassesSection config={config} update={update} /> : null}
         {section === 'display' ? <DisplaySection config={config} update={update} /> : null}
         {section === 'alerts' ? <AlertsSection config={config} update={update} /> : null}
+        {section === 'passcode' ? <PasscodeSection config={config} update={update} /> : null}
         {section === 'backup' ? (
           <BackupSection config={config} replace={replace} reset={reset} />
         ) : null}

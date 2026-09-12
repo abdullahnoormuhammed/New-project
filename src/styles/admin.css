@@ -466,3 +466,95 @@
     grid-template-columns: 40px 1fr auto;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The passcode lock that stands in front of the panel.
+   --------------------------------------------------------------------------- */
+
+.lock-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(80% 60% at 50% 0%, #0d2b23 0%, transparent 60%),
+    linear-gradient(180deg, #071411, #030a08);
+  color: #eef4f2;
+  overflow-y: auto;
+}
+
+.lock-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 38px 34px 32px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.9);
+  text-align: center;
+}
+
+.lock-glyph {
+  color: #2dd4a7;
+  margin-bottom: 14px;
+}
+
+.lock-card h1 {
+  margin: 0 0 8px;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.lock-subtitle {
+  margin: 0 0 24px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #8fb2a8;
+}
+
+.lock-input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 16px; /* 16px stops iOS zooming the page on focus */
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.lock-input:focus {
+  border-color: #2dd4a7;
+  box-shadow: 0 0 0 3px rgba(45, 212, 167, 0.16);
+}
+
+.lock-hint,
+.lock-note {
+  margin: 4px 0 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #7ea497;
+}
+
+.lock-error {
+  margin: 4px 0 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ff9c93;
+}
+
+.lock-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 6px;
+}
+
+.lock-actions .btn {
+  width: 100%;
+  padding: 12px 16px;
+}

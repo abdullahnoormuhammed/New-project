@@ -132,19 +132,6 @@ export interface JanazahNotice {
   enabled: boolean;
 }
 
-export interface Appeal {
-  id: string;
-  title: string;
-  description: string;
-  /** Currency symbol or code shown before the amounts. */
-  currency: string;
-  target: number;
-  raised: number;
-  /** Banking details, EFT reference, or a short call to action. */
-  details: string;
-  enabled: boolean;
-}
-
 export interface Quote {
   id: string;
   /** Arabic text, rendered right-to-left in a serif face. */
@@ -175,7 +162,6 @@ export type SlideType =
   | 'quote'
   | 'events'
   | 'janazah'
-  | 'appeal'
   | 'classes'
   | 'jumuah'
   | 'occasions'
@@ -197,7 +183,6 @@ export const SLIDE_LABELS: Record<SlideType, string> = {
   quote: 'Ayah & Hadith',
   events: 'Upcoming Programmes',
   janazah: 'Janazah Notices',
-  appeal: 'Appeals & Fundraising',
   classes: 'Madrasah & Ta’leem',
   jumuah: "Jumu'ah Details",
   occasions: 'Islamic Calendar',
@@ -256,8 +241,24 @@ export interface MasjidIdentity {
   phone: string;
 }
 
+export interface AdminConfig {
+  /**
+   * SHA-256 of the passcode. Null means no passcode has been set yet, and the
+   * panel will insist one is chosen before it lets anything be edited.
+   *
+   * This guards the panel against a passer-by with the TV's remote or a
+   * keyboard. It is not a defence against someone with developer tools on the
+   * device itself — the config lives in that browser, and anyone who can open
+   * the console can read it.
+   */
+  passcodeHash: string | null;
+  /** An optional reminder shown on the lock screen, never the passcode itself. */
+  hint: string;
+}
+
 export interface MasjidConfig {
   version: number;
+  admin: AdminConfig;
   masjid: MasjidIdentity;
   location: LocationConfig;
   calculation: CalculationConfig;
@@ -270,7 +271,6 @@ export interface MasjidConfig {
   announcements: Announcement[];
   events: MasjidEvent[];
   janazah: JanazahNotice[];
-  appeals: Appeal[];
   quotes: Quote[];
   classes: ClassEntry[];
 }
@@ -283,6 +283,10 @@ export function createId(prefix = 'id'): string {
 
 export const DEFAULT_CONFIG: MasjidConfig = {
   version: CONFIG_VERSION,
+  admin: {
+    passcodeHash: null,
+    hint: '',
+  },
   masjid: {
     name: 'Masjid Ut Taqwa',
     suburb: 'Sea Cow Lake',
@@ -382,7 +386,6 @@ export const DEFAULT_CONFIG: MasjidConfig = {
     { id: 'sl_quote', type: 'quote', enabled: true, durationSeconds: 20 },
     { id: 'sl_events', type: 'events', enabled: true, durationSeconds: 20 },
     { id: 'sl_janazah', type: 'janazah', enabled: true, durationSeconds: 22 },
-    { id: 'sl_appeal', type: 'appeal', enabled: true, durationSeconds: 18 },
     { id: 'sl_classes', type: 'classes', enabled: true, durationSeconds: 18 },
     { id: 'sl_jumuah', type: 'jumuah', enabled: true, durationSeconds: 15 },
     { id: 'sl_occasions', type: 'occasions', enabled: true, durationSeconds: 16 },
@@ -438,19 +441,6 @@ export const DEFAULT_CONFIG: MasjidConfig = {
     },
   ],
   janazah: [],
-  appeals: [
-    {
-      id: 'ap_1',
-      title: 'Masjid Extension Fund',
-      description:
-        'Alhamdulillah, work on the new wudhu facilities and the extended saff area has begun. Your contribution is a sadaqah jaariyah that continues to earn reward long after you have given it.',
-      currency: 'R',
-      target: 850000,
-      raised: 512400,
-      details: 'EFT: Masjid Ut Taqwa · Acc 1234567890 · Ref: EXTENSION',
-      enabled: true,
-    },
-  ],
   quotes: [
     {
       id: 'q_1',

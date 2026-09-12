@@ -3,7 +3,6 @@ import { PrayerBoardSlide } from './PrayerBoardSlide';
 import { NextSalaahSlide } from './NextSalaahSlide';
 import {
   AnnouncementsSlide,
-  AppealSlide,
   ClassesSlide,
   EventsSlide,
   JanazahSlide,
@@ -31,8 +30,6 @@ export function SlideRenderer({ slide, ctx }: { slide: PlannedSlide; ctx: SlideC
       return <EventsSlide items={payload.items} title={title} page={page} />;
     case 'janazah':
       return <JanazahSlide items={payload.items} title={title} ctx={ctx} />;
-    case 'appeal':
-      return <AppealSlide item={payload.item} title={title} />;
     case 'classes':
       return <ClassesSlide items={payload.items} title={title} page={page} />;
     case 'jumuah':

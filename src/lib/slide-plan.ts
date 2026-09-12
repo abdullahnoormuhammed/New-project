@@ -9,7 +9,6 @@
 
 import type {
   Announcement,
-  Appeal,
   ClassEntry,
   JanazahNotice,
   MasjidConfig,
@@ -28,7 +27,6 @@ export type SlidePayload =
   | { type: 'quote'; item: Quote }
   | { type: 'events'; items: MasjidEvent[] }
   | { type: 'janazah'; items: JanazahNotice[] }
-  | { type: 'appeal'; item: Appeal }
   | { type: 'classes'; items: ClassEntry[] }
   | { type: 'jumuah' }
   | { type: 'occasions' }
@@ -193,14 +191,6 @@ function expand(
         items,
       }));
 
-    case 'appeal':
-      return config.appeals.filter(isEnabled).map((item) => ({
-        key: `${slide.id}:${item.id}`,
-        seconds: meta.seconds,
-        title: meta.title,
-        payload: { type: 'appeal', item },
-      }));
-
     case 'classes':
       return paged(config.classes.filter(isEnabled), 4, (items) => ({
         type: 'classes',
@@ -239,10 +229,6 @@ export function describeSlide(type: SlideType, config: MasjidConfig, today: Date
     case 'quote': {
       const count = config.quotes.filter(isEnabled).length;
       return count === 0 ? 'No items — this slide is skipped.' : `${count} item(s), one per slide`;
-    }
-    case 'appeal': {
-      const count = config.appeals.filter(isEnabled).length;
-      return count === 0 ? 'No active appeals — this slide is skipped.' : `${count} appeal(s)`;
     }
     case 'classes': {
       const count = config.classes.filter(isEnabled).length;

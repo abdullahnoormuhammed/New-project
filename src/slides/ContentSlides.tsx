@@ -1,6 +1,5 @@
 import type {
   Announcement,
-  Appeal,
   ClassEntry,
   JanazahNotice,
   MasjidEvent,
@@ -169,36 +168,6 @@ export function JanazahSlide({
             </div>
           </Panel>
         ))}
-      </div>
-    </SlideShell>
-  );
-}
-
-// --- appeal ---------------------------------------------------------------------
-
-export function AppealSlide({ item, title }: { item: Appeal; title: string }) {
-  const percent = item.target > 0 ? Math.min(100, (item.raised / item.target) * 100) : 0;
-  const money = (value: number) => `${item.currency}${Math.round(value).toLocaleString('en-ZA')}`;
-
-  return (
-    <SlideShell eyebrow="Sadaqah Jaariyah" title={title}>
-      <div className="appeal-slide stagger">
-        <Panel className="appeal-main">
-          <div className="title">{item.title}</div>
-          <div className="description">{item.description}</div>
-          {item.details ? <div className="details">{item.details}</div> : null}
-        </Panel>
-
-        <Panel accent className="appeal-meter">
-          <div>
-            <div className="raised numeric">{money(item.raised)}</div>
-            <div className="target numeric">raised of {money(item.target)}</div>
-          </div>
-          <div className="meter-track">
-            <div className="fill" style={{ width: `${percent}%` }} />
-          </div>
-          <div className="percent numeric">{percent.toFixed(0)}% of the target</div>
-        </Panel>
       </div>
     </SlideShell>
   );

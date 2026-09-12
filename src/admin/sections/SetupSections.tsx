@@ -21,6 +21,7 @@ import { PRAYER_LABELS, buildDaySchedule, prayerLabel } from '../../lib/schedule
 import { describeSlide } from '../../lib/slide-plan';
 import { WEEKDAY_NAMES, type Rounding } from '../../lib/time';
 import { exportConfig, importConfig } from '../../lib/storage';
+import { checkPasscode, forgetUnlock, hashPasscode, isValidPasscode } from '../../lib/passcode';
 import {
   Field,
   NumberField,
@@ -1093,7 +1094,7 @@ export function BackupSection({
     <>
       <h1>Backup &amp; Restore</h1>
       <p className="lede">
-        Everything — times, announcements, appeals, theme — lives in this one file. Keep a copy
+        Everything — times, announcements, classes, theme — lives in this one file. Keep a copy
         somewhere safe: if the screen is ever replaced, restoring it is a single step.
       </p>
 
@@ -1137,6 +1138,130 @@ export function BackupSection({
         >
           Reset everything
         </button>
+      </Section>
+    </>
+  );
+}
+
+// --- passcode ------------------------------------------------------------------------------
+
+export function PasscodeSection({ config, update }: SectionProps) {
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [hint, setHint] = useState(config.admin.hint);
+  const [message, setMessage] = useState<{ kind: 'ok' | 'warning'; text: string } | null>(null);
+
+  const save = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const stored = config.admin.passcodeHash;
+
+    if (stored && !(await checkPasscode(current, stored))) {
+      setMessage({ kind: 'warning', text: 'The current passcode is not right.' });
+      return;
+    }
+    if (!isValidPasscode(next)) {
+      setMessage({ kind: 'warning', text: 'The new passcode must be at least four characters.' });
+      return;
+    }
+    if (next !== confirm) {
+      setMessage({ kind: 'warning', text: 'The two new passcodes do not match.' });
+      return;
+    }
+
+    const passcodeHash = await hashPasscode(next);
+    update((prev) => ({ ...prev, admin: { passcodeHash, hint: hint.trim() } }));
+    setCurrent('');
+    setNext('');
+    setConfirm('');
+    setMessage({ kind: 'ok', text: 'Passcode changed.' });
+  };
+
+  return (
+    <>
+      <h1>Passcode</h1>
+      <p className="lede">
+        The passcode that guards these settings. The board itself shows nothing about them — no
+        button, no hint — so a passer-by has no way in.
+      </p>
+
+      {message ? <div className={`admin-banner is-${message.kind}`}>{message.text}</div> : null}
+
+      <Section title="Change the passcode">
+        <form onSubmit={save}>
+          <div className="field-grid">
+            {config.admin.passcodeHash ? (
+              <Field label="Current passcode">
+                <input
+                  type="password"
+                  value={current}
+                  autoComplete="current-password"
+                  onChange={(event) => {
+                    setCurrent(event.target.value);
+                    setMessage(null);
+                  }}
+                />
+              </Field>
+            ) : null}
+            <Field label="New passcode">
+              <input
+                type="password"
+                value={next}
+                autoComplete="new-password"
+                onChange={(event) => {
+                  setNext(event.target.value);
+                  setMessage(null);
+                }}
+              />
+            </Field>
+            <Field label="Type the new passcode again">
+              <input
+                type="password"
+                value={confirm}
+                autoComplete="new-password"
+                onChange={(event) => {
+                  setConfirm(event.target.value);
+                  setMessage(null);
+                }}
+              />
+            </Field>
+            <TextField
+              label="Reminder"
+              value={hint}
+              onChange={setHint}
+              note="Shown on the lock screen. Never put the passcode itself here."
+            />
+          </div>
+          <div className="btn-row" style={{ marginTop: 16 }}>
+            <button className="btn btn-primary" type="submit">
+              Save passcode
+            </button>
+          </div>
+        </form>
+      </Section>
+
+      <Section
+        title="Lock the settings"
+        hint="The settings stay unlocked until this browser is closed. Lock them now if you are walking away from the screen."
+      >
+        <button
+          className="btn"
+          type="button"
+          onClick={() => {
+            forgetUnlock();
+            window.location.reload();
+          }}
+        >
+          Lock now
+        </button>
+      </Section>
+
+      <Section title="If the passcode is lost">
+        <p className="hint" style={{ marginBottom: 0 }}>
+          There is no way to recover it. The board would have to be reset from the device itself —
+          clear the browser's site data for this page, then set it up again from your backup file.
+          Keep a current backup and you lose nothing but a few minutes.
+        </p>
       </Section>
     </>
   );

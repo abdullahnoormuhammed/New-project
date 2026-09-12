@@ -2,24 +2,21 @@ import { useCallback, useEffect, useState } from 'react';
 import { ConfigProvider } from './state/ConfigContext';
 import { Board } from './components/Board';
 import { AdminPanel } from './admin/AdminPanel';
+import { PasscodeGate } from './admin/PasscodeGate';
 import './styles/base.css';
 import './styles/board.css';
 import './styles/slides.css';
 import './styles/admin.css';
 
 /**
- * Two views, one app: the board on the wall, and the admin panel behind it.
+ * Two views, one app: the board on the wall, and the settings behind it.
  *
- * The panel is reached at #admin, or by pressing "A" — a wall-mounted screen
- * with a keyboard paired to it should not need a mouse to be managed.
+ * Nothing on the board advertises the settings — no button, no hint. They are
+ * reached at #admin, or by pressing "A" on a keyboard paired with the screen,
+ * and then only with the passcode.
  */
 export default function App() {
   const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin');
-
-  const open = useCallback(() => {
-    window.location.hash = 'admin';
-    setShowAdmin(true);
-  }, []);
 
   const close = useCallback(() => {
     // Replace rather than push, so "back" does not land in the panel again.
@@ -56,47 +53,13 @@ export default function App() {
 
   return (
     <ConfigProvider>
-      {showAdmin ? <AdminPanel onClose={close} /> : <Board />}
-      {!showAdmin ? <AdminHint onOpen={open} /> : null}
+      {showAdmin ? (
+        <PasscodeGate onCancel={close}>
+          <AdminPanel onClose={close} />
+        </PasscodeGate>
+      ) : (
+        <Board />
+      )}
     </ConfigProvider>
-  );
-}
-
-/**
- * A corner affordance that fades away. Without it, nobody would guess the
- * settings are one keypress behind the board.
- */
-function AdminHint({ onOpen }: { onOpen: () => void }) {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setVisible(false), 8000);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  if (!visible) return null;
-
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      style={{
-        position: 'fixed',
-        bottom: 16,
-        right: 16,
-        zIndex: 90,
-        padding: '10px 18px',
-        borderRadius: 999,
-        border: '1px solid rgba(255,255,255,0.2)',
-        background: 'rgba(0,0,0,0.6)',
-        color: '#cfe3dd',
-        fontSize: 13,
-        fontWeight: 700,
-        cursor: 'pointer',
-        backdropFilter: 'blur(6px)',
-      }}
-    >
-      Press A to manage this board
-    </button>
   );
 }

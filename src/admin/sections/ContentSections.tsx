@@ -1,7 +1,6 @@
 import {
   createId,
   type Announcement,
-  type Appeal,
   type ClassEntry,
   type JanazahNotice,
   type MasjidConfig,
@@ -12,7 +11,6 @@ import {
 import {
   DateField,
   ItemCard,
-  NumberField,
   SelectField,
   TextAreaField,
   TextField,
@@ -292,94 +290,6 @@ export function JanazahSection({ config, update }: SectionProps) {
               label="Remove after"
               value={item.expiresOn}
               onChange={(expiresOn) => ops.patch(item.id, { expiresOn })}
-            />
-          </div>
-        </ItemCard>
-      ))}
-    </>
-  );
-}
-
-// --- appeals -----------------------------------------------------------------------
-
-export function AppealsSection({ config, update }: SectionProps) {
-  const ops = listOps('appeals', config.appeals, update);
-
-  return (
-    <>
-      <h1>Appeals &amp; Fundraising</h1>
-      <p className="lede">
-        Each appeal gets its own slide with a progress meter. Update the raised amount whenever the
-        treasurer reports in — the meter follows.
-      </p>
-
-      <div className="btn-row" style={{ marginBottom: 18 }}>
-        <button
-          className="btn btn-primary"
-          type="button"
-          onClick={() =>
-            ops.add({
-              id: createId('ap'),
-              title: 'New appeal',
-              description: '',
-              currency: 'R',
-              target: 100000,
-              raised: 0,
-              details: '',
-              enabled: true,
-            } as Appeal)
-          }
-        >
-          + Add appeal
-        </button>
-      </div>
-
-      {config.appeals.map((item, index) => (
-        <ItemCard
-          key={item.id}
-          index={index}
-          total={config.appeals.length}
-          label="Appeal"
-          enabled={item.enabled}
-          onToggle={(enabled) => ops.patch(item.id, { enabled })}
-          onMove={(direction) => ops.move(index, direction)}
-          onDelete={() => ops.remove(item.id)}
-        >
-          <div className="field-grid">
-            <TextField label="Title" value={item.title} onChange={(title) => ops.patch(item.id, { title })} />
-            <TextField
-              label="Currency symbol"
-              value={item.currency}
-              onChange={(currency) => ops.patch(item.id, { currency })}
-            />
-            <NumberField
-              label="Target"
-              value={item.target}
-              min={0}
-              step={1000}
-              onChange={(target) => ops.patch(item.id, { target })}
-            />
-            <NumberField
-              label="Raised so far"
-              value={item.raised}
-              min={0}
-              step={100}
-              onChange={(raised) => ops.patch(item.id, { raised })}
-            />
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <TextAreaField
-              label="Description"
-              value={item.description}
-              onChange={(description) => ops.patch(item.id, { description })}
-            />
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <TextField
-              label="Banking details / call to action"
-              value={item.details}
-              onChange={(details) => ops.patch(item.id, { details })}
-              note="Shown in a highlighted box. Keep it to one line."
             />
           </div>
         </ItemCard>
