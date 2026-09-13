@@ -43,6 +43,16 @@ finish Part 3 first, or the settings you enter will only live on your laptop.
 
 ## Part 2 — Create the shared settings
 
+> **Already done for this project.** A free Supabase project called
+> `masjid-board` exists, the schema below has been applied to it, and a board
+> with the code `taqwa` has been created. Its two public values are in Part 3.
+> The edit key was handed over separately — it is shown once and cannot be
+> looked up again, so if it has been lost, rotate it using the statement at the
+> bottom of `supabase/schema.sql`.
+>
+> The rest of this part is what to do for the **next** masjid, or to rebuild
+> from scratch.
+
 This is what lets a change made on a phone reach the TV. Supabase's free tier is
 far more than a masjid board will ever use.
 
@@ -106,13 +116,23 @@ write.
 
 ## Part 3 — Connect them
 
-Back in Vercel: **Settings → Environment Variables**. Add three:
+Back in Vercel: **Settings → Environment Variables**. Add three.
+
+For the project already created, they are exactly these:
 
 | Name | Value |
 | --- | --- |
-| `VITE_SUPABASE_URL` | the Project URL from 2d |
-| `VITE_SUPABASE_ANON_KEY` | the anon key from 2d |
-| `VITE_BOARD_SLUG` | your board code, e.g. `taqwa` |
+| `VITE_SUPABASE_URL` | `https://ovzofrxhdxvmaqablnye.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | `sb_publishable_pKM8YvVmqF28BtZsnWTIOA_etQJLBCa` |
+| `VITE_BOARD_SLUG` | `taqwa` |
+
+Both Supabase values are public by design — they are compiled into the website
+where anyone can read them, and they grant nothing on their own. The edit key is
+**not** among them and must never be put in an environment variable, because
+that would ship it to every screen.
+
+For a different board, take the first two from Part 2d and use your own code for
+the third.
 
 Then **Deployments → ⋯ → Redeploy**. These are read when the site is built, so a
 redeploy is required — changing them alone does nothing.
