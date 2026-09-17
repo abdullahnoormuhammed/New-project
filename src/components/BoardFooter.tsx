@@ -10,11 +10,18 @@ interface Props {
   nextIsTomorrow: boolean;
   slideCount: number;
   slideIndex: number;
+  /** Set in the minutes before an adhaan; the pill takes the warning over. */
+  adhaanWarning: { prayerName: string; seconds: number } | null;
 }
 
 /**
  * The persistent bottom bar: the live next-salaah countdown, the scrolling
  * notice ticker, and a progress indicator for the deck.
+ *
+ * In the minutes before an adhaan this same pill carries the warning, rather
+ * than floating a second banner over the slides. The board is dense — anything
+ * floating over it covers something — and a countdown to the adhaan belongs in
+ * the place people already read countdowns.
  */
 export function BoardFooter({
   config,
@@ -23,6 +30,7 @@ export function BoardFooter({
   nextIsTomorrow,
   slideCount,
   slideIndex,
+  adhaanWarning,
 }: Props) {
   const { display } = config;
 
@@ -33,13 +41,23 @@ export function BoardFooter({
 
   return (
     <footer className="board-footer">
-      <div className="next-pill">
-        <div>
-          <div className="label">Next Salaah{nextIsTomorrow ? ' · Tomorrow' : ''}</div>
-          <div className="prayer">{nextPrayer.name} Jamaat</div>
+      {adhaanWarning ? (
+        <div className="next-pill is-alert">
+          <div>
+            <div className="label">Adhaan</div>
+            <div className="prayer">{adhaanWarning.prayerName}</div>
+          </div>
+          <div className="countdown numeric">{formatDuration(adhaanWarning.seconds)}</div>
         </div>
-        <div className="countdown numeric">{formatDuration(secondsToJamaat, true)}</div>
-      </div>
+      ) : (
+        <div className="next-pill">
+          <div>
+            <div className="label">Next Salaah{nextIsTomorrow ? ' · Tomorrow' : ''}</div>
+            <div className="prayer">{nextPrayer.name} Jamaat</div>
+          </div>
+          <div className="countdown numeric">{formatDuration(secondsToJamaat, true)}</div>
+        </div>
+      )}
 
       {display.tickerEnabled && messages.length > 0 ? (
         <Ticker messages={messages} />

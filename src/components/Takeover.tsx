@@ -77,17 +77,6 @@ function SalaahTakeover({ state, alerts }: { state: PrayerState; alerts: AlertsC
   );
 }
 
-/** The banner shown in the minutes before adhaan, over the running slides. */
-export function PreAdhaanBanner({ state }: { state: PrayerState }) {
-  if (!state.prayer || state.phase !== 'approaching') return null;
-  return (
-    <div className="pre-adhaan-banner">
-      <span className="text">{state.prayer.name} Adhaan in</span>
-      <span className="count numeric">{formatDuration(state.secondsRemaining)}</span>
-    </div>
-  );
-}
-
 function PhoneGlyph() {
   return (
     <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">

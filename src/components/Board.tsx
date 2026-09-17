@@ -10,7 +10,7 @@ import { minutesOfDay, parseClock, toISODate } from '../lib/time';
 import { PATTERN_URL } from '../lib/pattern';
 import { BoardHeader } from './BoardHeader';
 import { BoardFooter } from './BoardFooter';
-import { PreAdhaanBanner, Takeover } from './Takeover';
+import { Takeover } from './Takeover';
 import { SlideRenderer } from '../slides';
 import { makeTimeFormatter } from './ui';
 import type { SlideContext } from '../slides/types';
@@ -94,7 +94,6 @@ export function Board() {
               </div>
             ) : null}
 
-            <PreAdhaanBanner state={prayerState} />
             <Takeover state={prayerState} config={config} />
           </main>
 
@@ -105,6 +104,11 @@ export function Board() {
             nextIsTomorrow={next.tomorrow}
             slideCount={plan.length}
             slideIndex={slideshow.index}
+            adhaanWarning={
+              prayerState.phase === 'approaching' && prayerState.prayer
+                ? { prayerName: prayerState.prayer.name, seconds: prayerState.secondsRemaining }
+                : null
+            }
           />
         </div>
       </div>

@@ -615,33 +615,19 @@
   -webkit-text-fill-color: #2a3d38;
 }
 
-/* The pre-adhaan banner sits over the slides without replacing them. */
-.pre-adhaan-banner {
-  position: absolute;
-  left: 50%;
-  bottom: 26px;
-  transform: translateX(-50%);
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  padding: 18px 44px;
-  border-radius: 999px;
+/* In the minutes before an adhaan the next-salaah pill becomes the warning. */
+.next-pill.is-alert {
   background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  border-color: transparent;
+  box-shadow: 0 18px 50px -22px var(--glow);
+  animation: soft-pulse 3s ease-in-out infinite;
+}
+
+.next-pill.is-alert .label,
+.next-pill.is-alert .prayer,
+.next-pill.is-alert .countdown {
   color: var(--accent-ink);
-  box-shadow: 0 24px 60px -20px var(--glow);
-  animation: rise-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.pre-adhaan-banner .text {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-
-.pre-adhaan-banner .count {
-  font-size: 38px;
-  font-weight: 900;
+  text-shadow: none;
 }
 
 /* --- toast for offline/admin hints ----------------------------------------- */

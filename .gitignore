@@ -8,3 +8,6 @@ dist/
 # local env
 .env
 .env.local
+
+# one-off preview export
+masjid-board-preview.pdf
